@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/src/material/expansion_panel.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class SimpleExpansionPanelListTestWidget extends StatefulWidget {
@@ -1946,5 +1947,37 @@ void main() {
         expect(e.size, 16);
       }
     }
+  });
+
+  testWidgets('No dimming when canTapOnHeader is true', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: MaterialApp(
+        home: SingleChildScrollView(
+          child: ExpansionPanelList(
+            children: [
+              ExpansionPanel(
+                canTapOnHeader: true,
+                headerBuilder: (BuildContext context, bool isExpanded) {
+                  return const Text('A');
+                },
+                body: const Text('B'),
+              ),
+              ExpansionPanel(
+                headerBuilder: (BuildContext context, bool isExpanded) {
+                  return const Text('C');
+                },
+                body: const Text('D'),
+              ),
+            ],
+          )
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+      (tester.widget(find.byType(RichText).first) as RichText).text.style?.color,
+      (tester.widget(find.byType(RichText).last) as RichText).text.style?.color,
+    );
   });
 }
