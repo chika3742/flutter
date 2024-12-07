@@ -561,6 +561,12 @@ abstract class PageTransitionsBuilder {
   /// {@macro flutter.widgets.delegatedTransition}
   DelegatedTransitionBuilder? get delegatedTransition => null;
 
+  /// {@macro flutter.widgets.TransitionRoute.transitionDuration}
+  Duration get transitionDuration => const Duration(milliseconds: 300);
+
+  /// {@macro flutter.widgets.TransitionRoute.reverseTransitionDuration}
+  Duration get reverseTransitionDuration => transitionDuration;
+
   /// Wraps the child with one or more transition widgets which define how [route]
   /// arrives on and leaves the screen.
   ///
@@ -799,6 +805,9 @@ class CupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   DelegatedTransitionBuilder? get delegatedTransition => CupertinoPageTransition.delegatedTransition;
 
   @override
+  Duration get transitionDuration => const Duration(milliseconds: 500);
+
+  @override
   Widget buildTransitions<T>(
     PageRoute<T> route,
     BuildContext context,
@@ -888,6 +897,26 @@ class PageTransitionsTheme with Diagnosticable {
       builders[platform] ?? const ZoomPageTransitionsBuilder();
 
     return matchingBuilder.delegatedTransition;
+  }
+
+  /// Provides the transition duration for the target platform.
+  ///
+  /// {@macro flutter.widgets.TransitionRoute.transitionDuration}
+  Duration transitionDuration(TargetPlatform platform) {
+    final PageTransitionsBuilder matchingBuilder =
+      builders[platform] ?? const ZoomPageTransitionsBuilder();
+
+    return matchingBuilder.transitionDuration;
+  }
+
+  /// Provides the reverse transition duration for the target platform.
+  ///
+  /// {@macro flutter.widgets.TransitionRoute.reverseTransitionDuration}
+  Duration reverseTransitionDuration(TargetPlatform platform) {
+    final PageTransitionsBuilder matchingBuilder =
+      builders[platform] ?? const ZoomPageTransitionsBuilder();
+
+    return matchingBuilder.reverseTransitionDuration;
   }
 
   // Map the builders to a list with one PageTransitionsBuilder per platform for

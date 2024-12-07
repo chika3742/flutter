@@ -733,4 +733,32 @@ void main() {
     // Verify that the transition successfully completed.
     expect(find.text('Back to home route...'), findsOneWidget);
   }, variant: TargetPlatformVariant.all());
+
+  testWidgets('CupertinoPageTransitionsBuilder overrides transition durations', (WidgetTester tester) async {
+    final Map<String, WidgetBuilder> routes = <String, WidgetBuilder>{
+      '/': (BuildContext context) => Material(
+        child: TextButton(
+          child: const Text('push'),
+          onPressed: () { Navigator.of(context).pushNamed('/b'); },
+        ),
+      ),
+      '/b': (BuildContext context) => const Text('page b'),
+    };
+
+    await tester.pumpWidget(
+      MaterialApp(
+        routes: routes,
+      ),
+    );
+
+    expect(find.byType(CupertinoPageTransition), findsOneWidget);
+    await tester.tap(find.text('push'));
+    await tester.pump();
+    // Pump for longer than default (300ms).
+    await tester.pump(const Duration(milliseconds: 450));
+    expect(tester.hasRunningAnimations, true);
+    await tester.pump(const Duration(milliseconds: 51));
+    expect(tester.hasRunningAnimations, false);
+
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 }

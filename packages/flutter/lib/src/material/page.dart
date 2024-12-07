@@ -87,7 +87,32 @@ mixin MaterialRouteTransitionMixin<T> on PageRoute<T> {
   Widget buildContent(BuildContext context);
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
+  Duration get transitionDuration => const Duration(milliseconds: 300); // unused
+
+  @override
+  Duration get reverseTransitionDuration => transitionDuration;
+
+  @override
+  AnimationController createAnimationController() {
+    assert(navigator != null);
+
+    final bool isOverriddenReverseDuration =
+        transitionDuration != reverseTransitionDuration;
+
+    final ThemeData theme = Theme.of(navigator!.context);
+    final Duration duration = theme.pageTransitionsTheme
+        .transitionDuration(theme.platform);
+    final Duration reverseDuration = isOverriddenReverseDuration
+        ? reverseTransitionDuration
+        : theme.pageTransitionsTheme.reverseTransitionDuration(theme.platform);
+    assert(duration >= Duration.zero);
+    return AnimationController(
+      duration: duration,
+      reverseDuration: reverseDuration,
+      debugLabel: debugLabel,
+      vsync: navigator!,
+    );
+  }
 
   @override
   Color? get barrierColor => null;
