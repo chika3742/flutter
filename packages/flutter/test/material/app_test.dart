@@ -815,6 +815,153 @@ void main() {
     expect(appliedTheme.primaryColor, Colors.lightGreen);
   });
 
+  testWidgets('MaterialApp passes Brightness.light to themeBuilder when themeMode is light', (WidgetTester tester) async {
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
+
+    // Mock the test to explicitly report a light platformBrightness.
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+
+    late Brightness passedBrightness;
+    await tester.pumpWidget(
+      MaterialApp(
+        themeBuilder: (brightness, highContrast) {
+          passedBrightness = brightness;
+          return ThemeData();
+        },
+        themeMode: ThemeMode.light,
+      ),
+    );
+    expect(passedBrightness, Brightness.light);
+
+    // Mock the test to explicitly report a dark platformBrightness.
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await tester.pumpWidget(
+      MaterialApp(
+        themeBuilder: (brightness, highContrast) {
+          passedBrightness = brightness;
+          return ThemeData();
+        },
+        themeMode: ThemeMode.light,
+      ),
+    );
+    expect(passedBrightness, Brightness.light);
+  });
+
+  testWidgets('MaterialApp passes Brightness.dark to themeBuilder when themeMode is dark', (WidgetTester tester) async {
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
+
+    // Mock the test to explicitly report a light platformBrightness.
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+
+    late Brightness passedBrightness;
+    await tester.pumpWidget(
+      MaterialApp(
+        themeBuilder: (brightness, highContrast) {
+          passedBrightness = brightness;
+          return ThemeData();
+        },
+        themeMode: ThemeMode.dark,
+      ),
+    );
+    expect(passedBrightness, Brightness.dark);
+
+    // Mock the test to explicitly report a dark platformBrightness.
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await tester.pumpWidget(
+      MaterialApp(
+        themeBuilder: (brightness, highContrast) {
+          passedBrightness = brightness;
+          return ThemeData();
+        },
+        themeMode: ThemeMode.dark,
+      ),
+    );
+    expect(passedBrightness, Brightness.dark);
+  });
+
+  testWidgets(
+    'MaterialApp passes Brightness.light when themeMode is system and platformBrightness is light',
+        (WidgetTester tester) async {
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
+
+      // Mock the test to explicitly report a light platformBrightness.
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+
+      late Brightness passedBrightness;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          themeBuilder: (brightness, highContrast) {
+            passedBrightness = brightness;
+            return ThemeData();
+          },
+          home: const SizedBox(),
+        ),
+      );
+
+      expect(passedBrightness, Brightness.light);
+    },
+  );
+
+  testWidgets(
+    'MaterialApp passes Brightness.dark when themeMode is system and platformBrightness is dark',
+        (WidgetTester tester) async {
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
+
+      // Mock the test to explicitly report a light platformBrightness.
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+
+      late Brightness passedBrightness;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          themeBuilder: (brightness, highContrast) {
+            passedBrightness = brightness;
+            return ThemeData();
+          },
+          home: const SizedBox(),
+        ),
+      );
+
+      expect(passedBrightness, Brightness.dark);
+    },
+  );
+
+  testWidgets(
+    'MaterialApp passes highContrast as true when appropriate',
+        (WidgetTester tester) async {
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
+
+      late bool passedHighContrast;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          themeBuilder: (brightness, highContrast) {
+            passedHighContrast = highContrast;
+            return ThemeData();
+          },
+          home: const SizedBox(),
+        ),
+      );
+
+      expect(passedHighContrast, isFalse);
+
+      // Mock the test to explicitly report a light platformBrightness.
+      tester.platformDispatcher.accessibilityFeaturesTestValue = FakeAccessibilityFeatures.allOn;
+      await tester.pumpWidget(
+        MaterialApp(
+          themeBuilder: (brightness, highContrast) {
+            passedHighContrast = highContrast;
+            return ThemeData();
+          },
+          home: const SizedBox(),
+        ),
+      );
+
+      expect(passedHighContrast, isTrue);
+    },
+  );
+
   testWidgets('MaterialApp animates theme changes', (WidgetTester tester) async {
     final lightTheme = ThemeData();
     final darkTheme = ThemeData.dark();

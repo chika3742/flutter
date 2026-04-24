@@ -240,6 +240,7 @@ class MaterialApp extends StatefulWidget {
     this.title = '',
     this.onGenerateTitle,
     this.color,
+    this.themeBuilder,
     this.theme,
     this.darkTheme,
     this.highContrastTheme,
@@ -269,7 +270,12 @@ class MaterialApp extends StatefulWidget {
     )
     this.useInheritedMediaQuery = false,
     this.themeAnimationStyle,
-  }) : routeInformationProvider = null,
+  }) : assert(themeBuilder == null
+          || (theme == null
+          && darkTheme == null
+          && highContrastTheme == null
+          && highContrastDarkTheme == null)),
+       routeInformationProvider = null,
        routeInformationParser = null,
        routerDelegate = null,
        backButtonDispatcher = null,
@@ -291,6 +297,7 @@ class MaterialApp extends StatefulWidget {
     this.onGenerateTitle,
     this.onNavigationNotification,
     this.color,
+    this.themeBuilder,
     this.theme,
     this.darkTheme,
     this.highContrastTheme,
@@ -404,6 +411,20 @@ class MaterialApp extends StatefulWidget {
   ///
   /// This value is passed unmodified to [WidgetsApp.onGenerateTitle].
   final GenerateAppTitle? onGenerateTitle;
+
+  /// A Callback to define the app's theme based on the current [Brightness]
+  /// and high contrast state.
+  ///
+  /// When provided, [themeBuilder] will be called whenever the system
+  /// brightness or high contrast setting changes, and the returned [ThemeData]
+  /// is applied to the widget tree. This is an alternative of [theme],
+  /// [darkTheme], [highContrastTheme], and [highContrastDarkTheme] to avoid
+  /// specifying each object fully and duplicating non-color settings
+  /// (typography, shape, component themes, etc.).
+  ///
+  /// [themeBuilder] and [theme], [darkTheme], [highContrastTheme],
+  /// [highContrastDarkTheme] are mutually exclusive.
+  final ThemeData Function(Brightness brightness, bool highContrast)? themeBuilder;
 
   /// Default visual properties, like colors fonts and shapes, for this app's
   /// material widgets.
@@ -993,7 +1014,6 @@ class _MaterialAppState extends State<MaterialApp> {
   }
 
   ThemeData _themeBuilder(BuildContext context) {
-    ThemeData? theme;
     // Resolve which theme to use based on brightness and high contrast.
     final ThemeMode mode = widget.themeMode ?? ThemeMode.system;
     final Brightness platformBrightness = MediaQuery.platformBrightnessOf(context);
@@ -1001,6 +1021,12 @@ class _MaterialAppState extends State<MaterialApp> {
         mode == ThemeMode.dark ||
         (mode == ThemeMode.system && platformBrightness == ui.Brightness.dark);
     final bool highContrast = MediaQuery.highContrastOf(context);
+
+    if (widget.themeBuilder case final themeBuilder?) {
+      return themeBuilder(useDarkTheme ? .dark : .light, highContrast);
+    }
+
+    ThemeData? theme;
     if (useDarkTheme && highContrast && widget.highContrastDarkTheme != null) {
       theme = widget.highContrastDarkTheme;
     } else if (useDarkTheme && widget.darkTheme != null) {
